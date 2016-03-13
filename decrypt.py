@@ -86,10 +86,10 @@ class DecryptionScheme:
 			self.cipherword_positions['['+cipherword+']'] = i
 			i += 1
 		cipher_words = [map(int, word.split(",")) for word in cipher_words]
-		self.sort_ciphertext = sorted(cipher_words, key=lambda word: self.word_length_freq_map[len(word)])
+		self.sorted_ciphertext = sorted(cipher_words, key=lambda word: self.word_length_freq_map[len(word)])
 
 	def print_sorted_ciphertext(self):
-		print self.sort_ciphertext
+		print self.sorted_ciphertext
 
 class Word:
 
@@ -118,12 +118,12 @@ class Word:
 		else:
 			for word in self.possible_guesses:
 				try:
-					for i in range(len(cipherword)):
+					for i in range(len(self.cipherword)):
 						if not self.key.number_is_mapped(self.cipherword[i]):
-							self.key.add_map(cipherword[i],word[i])
+							self.key.add_map(self.cipherword[i],word[i])
 					self.plainword = word
 					if (self.cipherword_number) < (len(self.master.sorted_ciphertext) - 1):
-						self.next = Word(master.sorted_ciphertext[self.cipherword_number+1],self.cipherword_number+1,self.key,self,self.master)
+						self.next = Word(self.master.sorted_ciphertext[self.cipherword_number+1],self.cipherword_number+1,self.key,self,self.master)
 						self.next.decrypt()
 				except KeyMappingException as e:
 					self.plainword = None
@@ -131,7 +131,7 @@ class Word:
 					self.key = copy.deepcopy(self.source_key)
 					continue					
 			if self.plainword == None:
-				raise KeyMappingException("All possible plainwords for cipherword {0} have been tried".format(str(cipherword)))
+				raise KeyMappingException("All possible plainwords for cipherword {0} have been tried".format(str(self.cipherword)))
 
 	def filter(self):
 		sublist = self.master.english_words_by_length[len(self.cipherword)]
@@ -139,8 +139,8 @@ class Word:
 		for word in sublist:
 			good_word = True
 			for i in range(len(self.cipherword)):
-				if number_is_mapped(self.cipherword[i]):
-					if not mapping_is_correct(word[i],self.cipherword[i]):
+				if self.key.number_is_mapped(self.cipherword[i]):
+					if not self.key.mapping_is_correct(word[i],self.cipherword[i]):
 						good_word = False
 						break
 			if good_word:
@@ -221,6 +221,7 @@ def main():
 	# ct = raw_input(">>> Enter the ciphertext: ")
 	ds = DecryptionScheme("98,23,5,23 34,23,56,34 34,11,23")
 	ds.print_sorted_ciphertext()
+	ds.decrypt()
 
 if __name__ == "__main__":
 	main()
