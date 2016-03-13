@@ -36,7 +36,7 @@ class DecryptionScheme:
 		for i in range(len(self.sorted_ciphertext)):
 			cipherword = self.sorted_ciphertext[i]
 			plainword = self.sorted_plainwords[i]
-			plainwords[self.cipherword_positions[cipherword]] = plainword
+			plainwords[self.cipherword_positions[str(cipherword)]] = plainword
 		return " ".join(plainwords)
 
 	def init_word_length_freq_map(self):
@@ -81,11 +81,11 @@ class DecryptionScheme:
 
 	def sort_ciphertext(self):
 		cipher_words = self.ciphertext.split(" ")
-		cipher_words = [int(word.split(",")) for word in cipher_words]
 		i = 0
 		for cipherword in cipher_words:
-			self.cipherword_positions[cipherword] = i
+			self.cipherword_positions['['+cipherword+']'] = i
 			i += 1
+		cipher_words = [map(int, word.split(",")) for word in cipher_words]
 		self.sort_ciphertext = sorted(cipher_words, key=lambda word: self.word_length_freq_map[len(word)])
 
 	def print_sorted_ciphertext(self):
@@ -184,7 +184,7 @@ class Key:
 			self.letter_count[letter] = 0
 
 		for i in range(103):
-			num_to_let.append(0)
+			self.num_to_let.append(0)
 
 	def init_letter_freq(self):
 		self.letter_freq_map["a"] = 8
@@ -219,7 +219,7 @@ class KeyMappingException(Exception):
 
 def main():
 	# ct = raw_input(">>> Enter the ciphertext: ")
-	# ds = DecryptionScheme("98,23,5,23 34,23,56,34 34,11,23")
+	ds = DecryptionScheme("98,23,5,23 34,23,56,34 34,11,23")
 	ds.print_sorted_ciphertext()
 
 if __name__ == "__main__":
